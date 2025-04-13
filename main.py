@@ -16,7 +16,7 @@ class ResearchResponse(BaseModel):
     tools_used: list[str]
     
 
-llm = ChatAnthropic(model="claude-3-5-sonnet-20241022")
+llm = ChatOpenAI(model="gpt-4o-mini")
 parser = PydanticOutputParser(pydantic_object=ResearchResponse)
 
 prompt = ChatPromptTemplate.from_messages(
@@ -47,7 +47,20 @@ query = input("What can i help you research? ")
 raw_response = agent_executor.invoke({"query": query})
 
 try:
-    structured_response = parser.parse(raw_response.get("output")[0]["text"])
-    print(structured_response)
+    # Get the output string from the response
+    output_str = raw_response.get("output", "")
+    if isinstance(output_str, str):
+        # Use the Pydantic parser to parse the response
+        structured_response = parser.parse(output_str)
+        print("\nResearch Results:")
+        print(f"Topic: {structured_response.topic}")
+        print(f"\nSummary: {structured_response.summary}")
+        print(f"\nSources:")
+        for source in structured_response.sources:
+            print(f"- {source}")
+        print(f"\nTools Used: {', '.join(structured_response.tools_used)}")
+    else:
+        print("Unexpected response format")
 except Exception as e:
-    print("Error parsing response", e, "Raw Response - ", raw_response)
+    print("Error parsing response:", e)
+    print("Raw Response:", raw_response)
