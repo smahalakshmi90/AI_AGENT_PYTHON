@@ -15,8 +15,8 @@ class ResearchResponse(BaseModel):
     sources: list[str]
     tools_used: list[str]
     
-
-llm = ChatAnthropic(model="claude-3-5-sonnet-20241022")
+#This is the model that will be used, for anthropic use claude-3-5-sonnet-20241022 use ChatAnthropic
+llm = ChatOpenAI(model="gpt-4o-mini")
 parser = PydanticOutputParser(pydantic_object=ResearchResponse)
 
 prompt = ChatPromptTemplate.from_messages(
